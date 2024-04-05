@@ -9,6 +9,7 @@ const auth = getAuth(app);
 const AuthProvider = ({ children }) => {
     const [ user , setUser ] = useState(null);
     const [news , setNews] = useState([]);
+    const [ loading , setLoading ] = useState(true);
 
     useEffect(()=>{
         fetch('/news.json')
@@ -17,16 +18,20 @@ const AuthProvider = ({ children }) => {
     },[])
 
     const creatUser = (email,password) =>{
+        setLoading(true);
         return createUserWithEmailAndPassword(auth,email,password)
     }
 
     const loginUser = (email,password) =>{
+        setLoading(true);
         return signInWithEmailAndPassword(auth,email,password)
     }
 
     useEffect(()=>{
+
         const unSubscribe = onAuthStateChanged(auth, currentuser =>{
-            setUser(currentuser)
+            setUser(currentuser);
+            setLoading(false);
         })
         return () =>{
             unSubscribe()
@@ -34,10 +39,11 @@ const AuthProvider = ({ children }) => {
     },[])
 
     const logOut = () =>{
+        setLoading(true)
         return signOut(auth)
     }
 
-  const authInfo = { news, user , creatUser,loginUser,logOut};
+  const authInfo = { loading , news, user , creatUser,loginUser,logOut};
   return (
     <AuthContext.Provider value={authInfo}>{children}</AuthContext.Provider>
   );
